@@ -15,9 +15,9 @@ app.get('/api/persons', (req, res) => {
     res.json(persons);
 });
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const person = persons.find(person => person.id === id);
+app.get('/api/persons/:uuid', (req, res) => {
+    const uuid = req.params.uuid;
+    const person = persons.find(person => person.uuid === uuid);
 
     if(person) {
         res.json(person);
