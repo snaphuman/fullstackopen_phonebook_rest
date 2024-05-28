@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const app = express();
 app.use(express.json());
 
-const { persons } = require('./personsMock');
+let { persons } = require('./personsMock');
 
 app.get('/info', (req, res) => {
     res.send('<h1>Hello World</h1>')
