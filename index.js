@@ -8,7 +8,14 @@ app.use(express.json());
 let { persons } = require('./personsMock');
 
 app.get('/info', (req, res) => {
-    res.send('<h1>Hello World</h1>')
+    const total = persons.length;
+    const currentDate = new Date();
+
+    const html = `
+        <p>Phonebook has info for ${total} people</p>
+        <p>${currentDate}</p>
+    `;
+    res.send(html);
 });
 
 app.get('/api/persons', (req, res) => {
@@ -22,19 +29,33 @@ app.get('/api/persons/:uuid', (req, res) => {
     if(person) {
         res.json(person);
     } else {
-        res.statusMessage = 'Person not found';
-        res.status(400).end();
+        res.status(400).json({
+            error: 'Person not found'
+        }).end();
     }
 });
 
 app.post('/api/persons', (req, res) => {
 
     const body  = req.body;
+    const personExist = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
 
     if (!body.name) {
         return res.status(400).json({
             error: 'Name is missing',
-        })
+        }).end();
+    }
+
+    if (!body.number) {
+        return res.status(400).json({
+            error: 'Number is missing',
+        }).end();
+    }
+
+    if (personExist) {
+        return res.status(400).json({
+            error: 'Name must be unique',
+        }).end();
     }
 
     const person = {
