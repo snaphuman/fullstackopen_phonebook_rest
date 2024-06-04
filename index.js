@@ -1,13 +1,15 @@
 const repl = require('node:repl');
-
 const express = require('express');
 const crypto = require('crypto');
 const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 
-app.use(express.json());
-
 // Midleware
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static('dist'));
 
 morgan.token('content', (req, _res) => JSON.stringify(req.body));
 
@@ -23,7 +25,11 @@ const logger = (tokens, req, res) => {
 
 app.use(morgan(logger));
 
+// Data
+
 let { persons } = require('./personsMock');
+
+// Routes
 
 app.get('/info', (req, res) => {
     const total = persons.length;
@@ -98,10 +104,11 @@ const generatedUUID = () => {
     return crypto.randomUUID();
 }
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.listen(PORT);
-
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
 const replServer = repl.start({
     prompt: 'my-app> ',
@@ -109,5 +116,3 @@ const replServer = repl.start({
 })
 
 replServer.context.app = app;
-
-console.log(`Server running on port ${PORT}`);
