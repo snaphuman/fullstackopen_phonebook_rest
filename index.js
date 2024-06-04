@@ -2,8 +2,26 @@ const repl = require('node:repl');
 
 const express = require('express');
 const crypto = require('crypto');
+const morgan = require('morgan');
 const app = express();
+
 app.use(express.json());
+
+// Midleware
+
+morgan.token('content', (req, _res) => JSON.stringify(req.body));
+
+const logger = (tokens, req, res) => {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens['response-time'](req, res), 'ms',
+        tokens.content(req, res),
+    ]
+}
+
+app.use(morgan(logger));
 
 let { persons } = require('./personsMock');
 
