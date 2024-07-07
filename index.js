@@ -1,9 +1,13 @@
+require('dotenv').config();
 const repl = require('node:repl');
 const express = require('express');
 const crypto = require('crypto');
 const morgan = require('morgan');
 const cors = require('cors');
+const { mongoose } = require('mongoose');
 const app = express();
+
+const Person = require('./models/person');
 
 // Midleware
 
@@ -25,9 +29,10 @@ const logger = (tokens, req, res) => {
 
 app.use(morgan(logger));
 
-// Data
+// MockData
 
 let { persons } = require('./personsMock');
+const { error } = require('node:console');
 
 // Routes
 
@@ -43,24 +48,39 @@ app.get('/info', (req, res) => {
 });
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons);
+    Person.find({}).then(people => {
+        res.json(people);
+    })
 });
 
-app.get('/api/persons/:uuid', (req, res) => {
-    const uuid = req.params.uuid;
-    const person = persons.find(person => person.uuid === uuid);
+app.get('/api/persons/:uuid', (req, res, next) => {
+    Person.findById(req.params.uuid).then(person => {
+        if(person) {
+            res.json(person);
+        } else {
+            res.status(404).end();
+        }
+    }).catch(error => next(error))
+});
 
-    if(person) {
-        res.json(person);
-    } else {
-        res.status(400).json({
-            error: 'Person not found'
-        }).end();
+app.put('/api/persons/:uuid', (req, res, next) => {
+    const body = req.body;
+    console.log("BODY", body)
+
+    const person = {
+        name: body.name,
+        number: body.number,
     }
-});
+
+    Person.findByIdAndUpdate(req.params.uuid, person, {new: true})
+        .then((result) => {
+            res.json(result)
+        })
+        .catch((error) => next(error))
+
+})
 
 app.post('/api/persons', (req, res) => {
-
     const body  = req.body;
     const personExist = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
 
@@ -82,23 +102,45 @@ app.post('/api/persons', (req, res) => {
         }).end();
     }
 
-    const person = {
+    const person = new Person({
         name: body.name,
         number: body.number,
-        uuid: generatedUUID(),
-    }
+    })
 
-    persons = persons.concat(person);
-
-    res.json(person);
+    person.save().then(saved => {
+        res.json(saved);
+    })
 })
 
-app.delete('/api/persons/:uuid', (req, res) => {
-    const uuid = Number(req.params.uuid);
-    persons = persons.filter(person => person.uuid !== uuid)
-
-    res.status(204).end();
+app.delete('/api/persons/:uuid', (req, res, next) => {
+    console.log('PARAMS', req.params);
+    Person.findByIdAndDelete(req.params.uuid)
+        .then(result => {
+            res.status(204).end();
+        })
+        .catch(error => next(error));
 });
+
+// Error Handler
+
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({error: 'Unknown Endpoint'})
+
+}
+
+const errorHandler = (error, req, res, next) => {
+    console.error(error);
+
+    if (error.name === 'CastError') {
+        return res.status(400).send({error: 'Malformed ID'})
+    }
+
+    next(error);
+};
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
+
 
 const generatedUUID = () => {
     return crypto.randomUUID();

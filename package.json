@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf dist && cd ../fullstackopen/part2/phonebook && npm run build && cp -r dist ../../../fullstackopen_back",
     "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",    
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs"
   },
   "author": "Fabian Hernández",
@@ -17,7 +17,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "mongoose": "^8.4.1",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.1"
   },
