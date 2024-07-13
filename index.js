@@ -66,15 +66,22 @@ app.get('/api/persons/:uuid', (req, res, next) => {
 });
 
 app.put('/api/persons/:uuid', (req, res, next) => {
-    const body = req.body;
-    console.log("BODY", body)
+    const { name, number } = req.body;
 
     const person = {
-        name: body.name,
-        number: body.number,
+        name,
+        number,
     }
 
-    Person.findByIdAndUpdate(req.params.uuid, person, {new: true})
+    Person.findByIdAndUpdate(
+        req.params.uuid, 
+        person, 
+        {
+            new: true,
+            runValidators: true,
+            context: 'query'
+        }
+    )
         .then((result) => {
             res.json(result)
         })
@@ -82,19 +89,15 @@ app.put('/api/persons/:uuid', (req, res, next) => {
 
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body  = req.body;
+
+    // TODO get persons from db or apply mongodb validation for unique values;
     const personExist = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
 
     if (!body.name) {
         return res.status(400).json({
             error: 'Name is missing',
-        }).end();
-    }
-
-    if (!body.number) {
-        return res.status(400).json({
-            error: 'Number is missing',
         }).end();
     }
 
@@ -112,6 +115,7 @@ app.post('/api/persons', (req, res) => {
     person.save().then(saved => {
         res.json(saved);
     })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:uuid', (req, res, next) => {
@@ -135,6 +139,8 @@ const errorHandler = (error, req, res, next) => {
 
     if (error.name === 'CastError') {
         return res.status(400).send({error: 'Malformed ID'})
+    } else if(error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
     }
 
     next(error);
@@ -142,11 +148,6 @@ const errorHandler = (error, req, res, next) => {
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
-
-
-const generatedUUID = () => {
-    return crypto.randomUUID();
-}
 
 const PORT = process.env.PORT || 3001;
 
