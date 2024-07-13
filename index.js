@@ -37,14 +37,16 @@ const { error } = require('node:console');
 // Routes
 
 app.get('/info', (req, res) => {
-    const total = persons.length;
     const currentDate = new Date();
 
-    const html = `
-        <p>Phonebook has info for ${total} people</p>
-        <p>${currentDate}</p>
-    `;
-    res.send(html);
+    Person.find({}).then(people => {
+        const total = people.length;
+        const html = `
+            <p>Phonebook has info for ${total} people</p>
+            <p>${currentDate}</p>
+        `;
+        res.send(html);
+    })
 });
 
 app.get('/api/persons', (req, res) => {
