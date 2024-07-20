@@ -13,7 +13,7 @@ mongoose.connect(url)
   })
   .catch((error) => {
     console.log('error connecting to mongodb', error.message)
-  }) 
+  })
 
 const personSchema = new mongoose.Schema({
   name: {
@@ -28,7 +28,7 @@ const personSchema = new mongoose.Schema({
       },
       message: (props) => `${props.value} is not a valid phone number`,
     },
-    minLength: [12, 'cannot be shorter than 12 chars'], 
+    minLength: [12, 'cannot be shorter than 12 chars'],
     required: [true, 'phone number is required'],
   },
 })

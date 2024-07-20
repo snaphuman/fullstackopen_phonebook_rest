@@ -71,8 +71,8 @@ app.put('/api/persons/:uuid', (req, res, next) => {
   }
 
   Person.findByIdAndUpdate(
-    req.params.uuid, 
-    person, 
+    req.params.uuid,
+    person,
     {
       new: true,
       runValidators: true,
@@ -127,7 +127,7 @@ app.delete('/api/persons/:uuid', (req, res, next) => {
 // Error Handler
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({error: 'Unknown Endpoint'})
+  res.status(404).send({ error: 'Unknown Endpoint' })
 
 }
 
@@ -135,7 +135,7 @@ const errorHandler = (error, req, res, next) => {
   console.error(error)
 
   if (error.name === 'CastError') {
-    return res.status(400).send({error: 'Malformed ID'})
+    return res.status(400).send({ error: 'Malformed ID' })
   } else if(error.name === 'ValidationError') {
     return res.status(400).json({ error: error.message })
   }

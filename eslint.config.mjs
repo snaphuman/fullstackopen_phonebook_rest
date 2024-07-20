@@ -4,8 +4,8 @@ import stylisticJs from '@stylistic/eslint-plugin-js'
 
 
 export default [
-  {files: ['**/*.js'], languageOptions: {sourceType: 'commonjs'}},
-  {languageOptions: { globals: globals.browser }},
+  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  { languageOptions: { globals: globals.browser } },
   {
     ignores: ['dist/*']
   },
@@ -14,7 +14,7 @@ export default [
       '@stylistic/js': stylisticJs
     },
     rules: {
-      '@stylistic/js/indent': ['error', 2],  
+      '@stylistic/js/indent': ['error', 2],
       '@stylistic/js/linebreak-style': [
         'error',
         'unix'
@@ -27,6 +27,15 @@ export default [
         'error',
         'never'
       ],
+      'eqeqeq': 'error',
+      'no-trailing-spaces': 'error',
+      'object-curly-spacing': [
+        'error', 'always'
+      ],
+      'arrow-spacing': [
+        'error', { 'before': true, 'after': true }
+      ],
+      'no-console': 0
     }
   },
   pluginJs.configs.recommended,

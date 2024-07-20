@@ -1,0 +1,9 @@
+{
+    "eslint.lintTask.enable": true,
+    "eslint.format.enable": true,
+    "eslint.ignoreUntitled": true,
+    "eslint.experimental.useFlatConfig": false,
+    "eslint.codeActionsOnSave.mode": "problems",
+    "eslint.problems.shortenToSingleLine": true,
+    "eslint.quiet": true,
+}
