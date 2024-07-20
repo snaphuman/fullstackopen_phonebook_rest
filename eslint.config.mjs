@@ -1,11 +1,14 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
+import globals from 'globals'
+import pluginJs from '@eslint/js'
 import stylisticJs from '@stylistic/eslint-plugin-js'
 
 
 export default [
-  {files: ["**/*.js"], languageOptions: {sourceType: "commonjs"}},
+  {files: ['**/*.js'], languageOptions: {sourceType: 'commonjs'}},
   {languageOptions: { globals: globals.browser }},
+  {
+    ignores: ['dist/*']
+  },
   {
     plugins: {
       '@stylistic/js': stylisticJs
@@ -13,18 +16,18 @@ export default [
     rules: {
       '@stylistic/js/indent': ['error', 2],  
       '@stylistic/js/linebreak-style': [
-          'error',
-          'unix'
+        'error',
+        'unix'
       ],
       '@stylistic/js/quotes': [
-          'error',
-          'single'
+        'error',
+        'single'
       ],
       '@stylistic/js/semi': [
-          'error',
-          'never'
+        'error',
+        'never'
       ],
     }
   },
   pluginJs.configs.recommended,
-];
+]
