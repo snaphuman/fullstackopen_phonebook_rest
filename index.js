@@ -1,10 +1,8 @@
 require('dotenv').config()
 const repl = require('node:repl')
 const express = require('express')
-const crypto = require('crypto')
 const morgan = require('morgan')
 const cors = require('cors')
-const { mongoose } = require('mongoose')
 const app = express()
 
 const Person = require('./models/person')
@@ -15,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 
-morgan.token('content', (req, _res) => JSON.stringify(req.body))
+morgan.token('content', (req) => JSON.stringify(req.body))
 
 const logger = (tokens, req, res) => {
   return [
@@ -32,7 +30,6 @@ app.use(morgan(logger))
 // MockData
 
 let { persons } = require('./personsMock')
-const { error } = require('node:console')
 
 // Routes
 
@@ -121,7 +118,7 @@ app.post('/api/persons', (req, res, next) => {
 app.delete('/api/persons/:uuid', (req, res, next) => {
   console.log('PARAMS', req.params)
   Person.findByIdAndDelete(req.params.uuid)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
