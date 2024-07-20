@@ -1,21 +1,21 @@
-require('dotenv').config();
-const repl = require('node:repl');
-const express = require('express');
-const crypto = require('crypto');
-const morgan = require('morgan');
-const cors = require('cors');
-const { mongoose } = require('mongoose');
-const app = express();
+require('dotenv').config()
+const repl = require('node:repl')
+const express = require('express')
+const crypto = require('crypto')
+const morgan = require('morgan')
+const cors = require('cors')
+const { mongoose } = require('mongoose')
+const app = express()
 
-const Person = require('./models/person');
+const Person = require('./models/person')
 
 // Midleware
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static('dist'));
+app.use(cors())
+app.use(express.json())
+app.use(express.static('dist'))
 
-morgan.token('content', (req, _res) => JSON.stringify(req.body));
+morgan.token('content', (req, _res) => JSON.stringify(req.body))
 
 const logger = (tokens, req, res) => {
   return [
@@ -27,46 +27,46 @@ const logger = (tokens, req, res) => {
   ]
 }
 
-app.use(morgan(logger));
+app.use(morgan(logger))
 
 // MockData
 
-let { persons } = require('./personsMock');
-const { error } = require('node:console');
+let { persons } = require('./personsMock')
+const { error } = require('node:console')
 
 // Routes
 
 app.get('/info', (req, res) => {
-  const currentDate = new Date();
+  const currentDate = new Date()
 
   Person.find({}).then(people => {
-    const total = people.length;
+    const total = people.length
     const html = `
             <p>Phonebook has info for ${total} people</p>
             <p>${currentDate}</p>
-        `;
-    res.send(html);
+        `
+    res.send(html)
   })
-});
+})
 
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(people => {
-    res.json(people);
+    res.json(people)
   })
-});
+})
 
 app.get('/api/persons/:uuid', (req, res, next) => {
   Person.findById(req.params.uuid).then(person => {
     if(person) {
-      res.json(person);
+      res.json(person)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   }).catch(error => next(error))
-});
+})
 
 app.put('/api/persons/:uuid', (req, res, next) => {
-  const { name, number } = req.body;
+  const { name, number } = req.body
 
   const person = {
     name,
@@ -90,7 +90,7 @@ app.put('/api/persons/:uuid', (req, res, next) => {
 })
 
 app.post('/api/persons', (req, res, next) => {
-  const body  = req.body;
+  const body  = req.body
 
   // TODO get persons from db or apply mongodb validation for unique values;
   const personExist = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
@@ -98,13 +98,13 @@ app.post('/api/persons', (req, res, next) => {
   if (!body.name) {
     return res.status(400).json({
       error: 'Name is missing',
-    }).end();
+    }).end()
   }
 
   if (personExist) {
     return res.status(400).json({
       error: 'Name must be unique',
-    }).end();
+    }).end()
   }
 
   const person = new Person({
@@ -113,19 +113,19 @@ app.post('/api/persons', (req, res, next) => {
   })
 
   person.save().then(saved => {
-    res.json(saved);
+    res.json(saved)
   })
     .catch(error => next(error))
 })
 
 app.delete('/api/persons/:uuid', (req, res, next) => {
-  console.log('PARAMS', req.params);
+  console.log('PARAMS', req.params)
   Person.findByIdAndDelete(req.params.uuid)
     .then(result => {
-      res.status(204).end();
+      res.status(204).end()
     })
-    .catch(error => next(error));
-});
+    .catch(error => next(error))
+})
 
 // Error Handler
 
@@ -135,7 +135,7 @@ const unknownEndpoint = (req, res) => {
 }
 
 const errorHandler = (error, req, res, next) => {
-  console.error(error);
+  console.error(error)
 
   if (error.name === 'CastError') {
     return res.status(400).send({error: 'Malformed ID'})
@@ -143,21 +143,21 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).json({ error: error.message })
   }
 
-  next(error);
-};
+  next(error)
+}
 
-app.use(unknownEndpoint);
-app.use(errorHandler);
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server running on port ${PORT}`)
+})
 
 const replServer = repl.start({
   prompt: 'my-app> ',
   useColors: true,
 })
 
-replServer.context.app = app;
+replServer.context.app = app
